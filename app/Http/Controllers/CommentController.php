@@ -31,26 +31,46 @@ class CommentController extends Controller
     {
     	
         $response = Comment::create($request->all());
-        $article_id = $request->input('article_id');
+        
+        $article_id = $request->json('article_id');
         
         
-        $user_id = Article::select('user_id')->where('articles.id', $article_id)->get();
+        // получаем id автора
+        //$user_id = Article::select('user_id')->where('articles.id', $article_id)->get();
     	
-       	$user = User::select('email', 'id', 'name')->where('id', $request->input('user_id'))->get();
+    	$user_id = Article::findOrFail($request->json('article_id'));
     	
+    	//автор поста
+       	$user = User::select('email', 'id', 'name')->where('id', $user_id->user_id)->get();
+       	
+       	$comment_author = User::select('email', 'id', 'name')->where('id', $response->user_id)->get(); 
+
 	    $data = array(
 	    	'name'		=>'Добавлен комментарий!',
 	    	'link_id'	=> $article_id,
 	    	'text'		=> $request->input('text'),
 	    	'name'		=> $user[0]->name,
+	    	'comment_author' => $comment_author[0]-> name,
 	    	'id'		=> $user[0]->id
 	    	);
 
-
+		//return $data;
 		if ($response) {
+			
 			Mail::send(['html'=>'mail/addComment'], $data, function($message) use ($user) {
-        	$message->to($user[0]->email, 'askildar@yandex.ru')
-        			->to('askildar@yandex.ru')
+        	$message->
+        			to($user[0]->email)
+        			 //->to('askildar@yandex.ru')
+	    			->subject('Оставлен комментарий!');
+	        $message->from('info@master702.ru');
+	    	});	
+
+
+	    	
+	    	Mail::send(['html'=>'mail/addComment'], $data, function($message) use ($user) {
+        	$message
+        			// to($user[0]->email)
+        			 ->to('askildar@yandex.ru')
 	    			->subject('Оставлен комментарий!');
 	        $message->from('info@master702.ru');
 	    	});	

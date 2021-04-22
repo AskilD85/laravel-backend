@@ -6,6 +6,7 @@ use App\Comment;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Mail;
 
 class ArticleController extends Controller
@@ -54,23 +55,54 @@ class ArticleController extends Controller
 	    	'user_id'	=> $article_info[0]->user_id,
 	    	'city_id'	=> $article_info[0]->city_id,
 	    	);
-	    	
-        if ($article) {
+
+        $foo = file::extension($request->file('myfile'));
+        if($request->hasFile('myfile')) {
+            $file = $request->file('myfile');
+            $file->move(storage_path().'/images', $article_info[0]->user_id.'_myfile.img');
+            return response()->json('{"ok":"ok"}');
+        }
+        
+     
+
+       /* if ($article) {
 			Mail::send(['html'=>'mail/addArticle'], $data, function($message) {
         	$message->to('askildar@yandex.ru')
 	    			->subject('Добавлен новый пост!');
 	        $message->from('info@master702.ru');
 	    	});	
-		}
+		}*/
 		
-        return response()->json($article, 200);
+        return response()->json($foo, Response::HTTP_OK);
     }
     
-    public function add(Request $request)
+   
+     public function add(Request $request)
     {
         $article = Article::create($request->all());
         return response()->json($article, 200);
     }
+    
+    
+    
+    
+    public function myfile(Request $request)
+    {
+
+          if($request->hasFile('myfile')) {
+            $file = $request->file('myfile');
+           
+            $file->move(storage_path().'/images', '222'.$file->getClientOriginalName());
+            return response()->json('{"yes":"получилось"}');
+        }
+        
+        if(!$request->hasFile('myfile')) {
+        	return 'no';
+        }
+        
+    }
+    
+    
 
     public function update(Request $request, Article $article)
     {

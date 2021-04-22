@@ -29,14 +29,23 @@ Auth::routes();
 Route::middleware('auth:api')->get('/user', function (Request $request) {
         return $request->user();
     });
-    
+
+
 
 Route::group(['middleware' => ['auth:api'] ], function() {
     /*---БЛОГ---------------*/
         Route::post('blog', 'BlogController@create');
         Route::get('show_for_user/{id}', 'BlogController@show_for_user');
     /*----------------------*/
-     
+
+    /*-----Загрузка файлов------------*/
+    Route::post('articles/myfile', 'ArticleController@myfile');
+
+    
+    /*--------------------------------*/
+
+
+
     Route::post('articles', 'ArticleController@store');
     Route::put('articles/{article}', 'ArticleController@update');
     Route::delete('articles/{article}', 'ArticleController@delete');
